@@ -1,0 +1,44 @@
+name: AI Code Review (PRs Only)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  codeql:
+    name: Analyze code with CodeQL
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up CodeQL
+      - name: Set up CodeQL
+        uses: github/codeql-action/setup@v2
+
+      # Initialize CodeQL analysis
+      - name: Initialize CodeQL analysis
+        run: |
+          codeql database create codeql-db --language=javascript
+          codeql database analyze codeql-db --format=sarif-latest --output=results.sarif
+
+      # Upload CodeQL analysis results (for code review feedback)
+      - name: Upload CodeQL analysis results
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
+
+      # Add review comments for issues found
+      - name: Add review comments for CodeQL findings
+        if: success() && github.event.pull_request.draft == false
+        run: |
+          # Get the list of CodeQL issues
+          issues=$(jq -r '.runs[0].results[] | .message.text' results.sarif)
+          
+          # Add each issue as a comment to the pull request
+          for issue in $issues; do
+            gh pr comment ${{ github.event.pull_request.number }} --body "$issue"
+          done
+
