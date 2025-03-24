@@ -22,11 +22,25 @@ def review_code_in_file(file_path):
     with torch.no_grad():
         outputs = model(**inputs)
 
-    # Analyze outputs for code review (dummy analysis in this case)
-    print(f"Reviewing {file_path}...")
+    # Analyze the logits (these are the raw outputs from the model)
+    logits = outputs.logits
+    predictions = torch.argmax(logits, dim=-1)
 
-    # You can replace this with custom analysis logic
-    print(outputs)
+    print(f"Reviewing {file_path}...\n")
+    print("Predictions (top tokens for each input token):")
+    print(predictions)
+
+    # You could also interpret the logits, but since it's a Masked Language Model, 
+    # it's more suitable for filling masked tokens or predicting the next token. 
+    # Here, we'll just print out the logits for now.
+    print("\nLogits (Raw predictions):")
+    print(logits)
+
+    # Simple feedback based on the logits - this part can be enhanced based on your needs
+    if logits.max() < 0:
+        print("\nSuggestion: Check for potential issues, the model did not find strong correlations.")
+    else:
+        print("\nSuggestion: Code seems to align with typical patterns.")
 
 def main():
     # The list of files passed from the GitHub Action
