@@ -43,6 +43,10 @@ def review_code_in_file(file_path):
 
 def main():
     # The list of files passed from the GitHub Action
+    if len(sys.argv) < 2:
+        print("Error: No files provided.")
+        return
+
     changed_files = sys.argv[1].split()
 
     # Review each changed file
