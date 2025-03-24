@@ -3,7 +3,7 @@ import torch
 from transformers import LlamaTokenizer, LlamaForCausalLM
 
 # Load pre-trained CodeLlama model and tokenizer
-model_name = "codellama/CodeLlama-7b-hf"  # Updated model name for CodeLlama 7b
+model_name = "codellama/CodeLlama-7b-hf"  # Updated to use CodeLlama
 tokenizer = LlamaTokenizer.from_pretrained(model_name)
 model = LlamaForCausalLM.from_pretrained(model_name)
 
