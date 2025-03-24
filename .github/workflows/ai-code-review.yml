@@ -33,10 +33,10 @@ jobs:
             # For PR, compare the base and head commits
             files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
           else
-            # For push event, compare the last commit to the current commit
-            files=$(git diff --name-only HEAD~1 HEAD)
+            # For push event, compare the current commit with the last commit (use HEAD)
+            files=$(git diff --name-only HEAD^ HEAD)
           fi
-          echo "changed_files=$files" >> $GITHUB_ENV
+          echo "changed_files=$files" >> $GITHUB_ENV  
 
       - name: Run code review with CodeBERT
         run: |
