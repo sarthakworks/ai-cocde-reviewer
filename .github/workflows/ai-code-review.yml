@@ -28,8 +28,14 @@ jobs:
       - name: Get list of changed files
         id: files
         run: |
-          # Get the list of files changed in the PR or push
-          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          # Check if the event is a pull_request
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            # For PR, compare the base and head commits
+            files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            # For push event, compare the last commit to the current commit
+            files=$(git diff --name-only HEAD~1 HEAD)
+          fi
           echo "changed_files=$files" >> $GITHUB_ENV
 
       - name: Run code review with CodeBERT
