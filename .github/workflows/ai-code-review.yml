@@ -1,4 +1,4 @@
-name: Code Review
+name: Code Review using CodeLlama
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Fetch full history to ensure HEAD^ and HEAD~1 work
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -27,11 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install transformers sentencepiece torch huggingface_hub
 
-      - name: Cache CodeLlama model
-        uses: actions/cache@v2
+      - name: Cache Hugging Face model
+        uses: actions/cache@v3  # Updated to v3
         with:
-          path: ~/.cache/huggingface
-          key: ${{ runner.os }}-transformers-${{ hashFiles('**/requirements.txt') }}
+          path: ~/.cache/huggingface  # Cache directory for Hugging Face models
+          key: ${{ runner.os }}-transformers-${{ hashFiles('**/requirements.txt') }}  # Cache key based on requirements.txt or other unique changes
           restore-keys: |
             ${{ runner.os }}-transformers-
 
