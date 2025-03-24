@@ -26,17 +26,13 @@ def review_code_in_file(file_path):
     logits = outputs.logits
     predictions = torch.argmax(logits, dim=-1)
 
+    # Decode the predictions back to readable tokens
+    decoded_predictions = tokenizer.decode(predictions[0], skip_special_tokens=True)
+
     print(f"Reviewing {file_path}...\n")
-    print("Predictions (top tokens for each input token):")
-    print(predictions)
-
-    # You could also interpret the logits, but since it's a Masked Language Model, 
-    # it's more suitable for filling masked tokens or predicting the next token. 
-    # Here, we'll just print out the logits for now.
-    print("\nLogits (Raw predictions):")
-    print(logits)
-
-    # Simple feedback based on the logits - this part can be enhanced based on your needs
+    print(f"Decoded Predictions: {decoded_predictions}\n")
+    
+    # Suggest improvements based on the logits or predictions
     if logits.max() < 0:
         print("\nSuggestion: Check for potential issues, the model did not find strong correlations.")
     else:
