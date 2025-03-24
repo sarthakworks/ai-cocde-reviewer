@@ -26,6 +26,9 @@ def review_code_in_file(file_path):
     logits = outputs.logits
     predictions = torch.argmax(logits, dim=-1)
 
+    print(f"logits {logits}...\n")
+    print(f"predictions {predictions}...\n")
+
     # Decode the predictions back to readable tokens
     decoded_predictions = tokenizer.decode(predictions[0], skip_special_tokens=True)
 
