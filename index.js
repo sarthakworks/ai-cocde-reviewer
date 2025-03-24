@@ -6,4 +6,4 @@ const textNode = document.createElement('h1');
 textNode.textContent = 'Hello, World!';
 
 // Append the text node to the #root element
-rootElement.appendChild(lkk);
+rootElement.appendChild(lk);
