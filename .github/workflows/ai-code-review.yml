@@ -2,7 +2,7 @@ name: AI Code Review (PRs Only)
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]  # Triggers on PR creation, update, or reopen
 
 permissions:
   pull-requests: write  # Required to post comments on PRs
@@ -11,36 +11,46 @@ permissions:
 jobs:
   codeql:
     name: Analyze code with CodeQL
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for this job
 
     steps:
+      # Step 1: Checkout the code from the pull request
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # This action checks out your repository code
 
+      # Step 2: Set up CodeQL
       - name: Set up CodeQL
-        uses: github/codeql-action/setup-codeql@v2
+        uses: github/codeql-action/setup@v2  # Correct action reference for setting up CodeQL
 
+      # Step 3: Initialize CodeQL analysis
       - name: Initialize CodeQL analysis
         run: |
+          # Create a CodeQL database for analysis (JavaScript is assumed here)
           codeql database create codeql-db --language=javascript
+          # Analyze the code and generate the SARIF report (results.sarif)
           codeql database analyze codeql-db --format=sarif-latest --output=results.sarif
 
+      # Step 4: Upload SARIF analysis results
       - name: Upload CodeQL analysis results
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@v1  # Upload SARIF file with analysis results
         with:
           sarif_file: results.sarif
 
+      # Step 5: Set up GitHub CLI to add comments
       - name: Set up GitHub CLI
         run: |
           curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/github-archive-keyring.gpg >/dev/null
           sudo apt update
           sudo apt install gh
 
+      # Step 6: Add review comments for findings
       - name: Add review comments for CodeQL findings
-        if: success() && github.event.pull_request.draft == false
+        if: success() && github.event.pull_request.draft == false  # Skip if the PR is a draft
         run: |
+          # Extract issues from the SARIF results file using jq (a tool for JSON parsing)
           issues=$(jq -r '.runs[0].results[] | .message.text' results.sarif)
           
+          # For each issue found, add a comment to the pull request
           for issue in $issues; do
             gh pr comment ${{ github.event.pull_request.number }} --body "$issue"
           done
