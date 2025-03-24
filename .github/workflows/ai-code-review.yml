@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch full history to ensure HEAD^ and HEAD~1 work
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -25,21 +25,26 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install transformers sentencepiece torch  # Added sentencepiece
+          pip install transformers sentencepiece torch huggingface_hub
+
+      - name: Cache CodeLlama model
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-transformers-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-transformers-
 
       - name: Get list of changed files
         id: files
         run: |
-          # Check if the event is a pull_request
           if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            # For PR, compare the base and head commits
             files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
           else
-            # For push event, compare the current commit with the last commit
             files=$(git diff --name-only HEAD^ HEAD)
           fi
           echo "changed_files=$files" >> $GITHUB_ENV
 
-      - name: Run code review with model
+      - name: Run code review with CodeLlama
         run: |
           python review_code.py "${{ env.changed_files }}"

@@ -1,13 +1,35 @@
 import sys
+import time
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from huggingface_hub import snapshot_download
+from transformers import LlamaTokenizer, LlamaForCausalLM
 
-# Load pre-trained CodeLlama model and tokenizer
-model_name = "codellama/CodeLlama-7b-hf"  # Updated model name for CodeLlama
+def download_model_with_retries(model_name, retries=3, delay=60):
+    """
+    Attempt to download the model with retry logic.
+    """
+    for attempt in range(retries):
+        try:
+            # Download model
+            print(f"Attempting to download {model_name} (Attempt {attempt + 1})...")
+            model = AutoModelForCausalLM.from_pretrained(model_name)
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            return model, tokenizer
+        except Exception as e:
+            print(f"Download failed: {e}")
+            if attempt < retries - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                print("Max retries reached. Could not download the model.")
+                raise
 
-# Load the appropriate tokenizer (CodeLlamaTokenizer)
-tokenizer = AutoTokenizer.from_pretrained(model_name)  # Use AutoTokenizer for compatibility
-model = AutoModelForCausalLM.from_pretrained(model_name)
+# Set model name
+model_name = "codellama/CodeLlama-7b-hf"
+
+# Attempt to download the model with retries
+model, tokenizer = download_model_with_retries(model_name)
 
 def review_code_in_file(file_path):
     try:
