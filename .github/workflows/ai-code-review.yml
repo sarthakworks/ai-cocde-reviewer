@@ -25,6 +25,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install transformers torch
 
+      - name: Get list of changed files
+        id: files
+        run: |
+          # Get the list of files changed in the PR or push
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "changed_files=$files" >> $GITHUB_ENV
+
       - name: Run code review with CodeBERT
         run: |
-          python review_code.py
+          python review_code.py "${{ env.changed_files }}"
