@@ -1,11 +1,11 @@
 import sys
 import torch
-from transformers import LlamaTokenizer, LlamaForCausalLM
+from transformers import RobertaTokenizer, RobertaForMaskedLM
 
-# Load pre-trained CodeLlama model and tokenizer
-model_name = "codellama/CodeLlama-7b-hf"  # Updated model name for CodeLlama 7b
-tokenizer = LlamaTokenizer.from_pretrained(model_name)
-model = LlamaForCausalLM.from_pretrained(model_name)
+# Load pre-trained CodeBERT model and tokenizer
+model_name = "microsoft/codebert-base"  # You can change to the relevant model
+tokenizer = RobertaTokenizer.from_pretrained(model_name)
+model = RobertaForMaskedLM.from_pretrained(model_name)
 
 def review_code_in_file(file_path):
     try:
