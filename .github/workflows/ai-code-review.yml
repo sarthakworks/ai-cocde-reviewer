@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history to ensure HEAD^ and HEAD~1 work
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,10 +35,10 @@ jobs:
             # For PR, compare the base and head commits
             files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
           else
-            # For push event, compare the current commit with the last commit (use HEAD)
+            # For push event, compare the current commit with the last commit
             files=$(git diff --name-only HEAD^ HEAD)
           fi
-          echo "changed_files=$files" >> $GITHUB_ENV  
+          echo "changed_files=$files" >> $GITHUB_ENV
 
       - name: Run code review with CodeBERT
         run: |
