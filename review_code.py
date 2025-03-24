@@ -1,11 +1,13 @@
 import sys
 import torch
-from transformers import LlamaTokenizer, LlamaForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Load pre-trained CodeLlama model and tokenizer
-model_name = "codellama/CodeLlama-7b-hf"  # Updated to use CodeLlama
-tokenizer = LlamaTokenizer.from_pretrained(model_name)
-model = LlamaForCausalLM.from_pretrained(model_name)
+model_name = "codellama/CodeLlama-7b-hf"  # Updated model name for CodeLlama
+
+# Load the appropriate tokenizer (CodeLlamaTokenizer)
+tokenizer = AutoTokenizer.from_pretrained(model_name)  # Use AutoTokenizer for compatibility
+model = AutoModelForCausalLM.from_pretrained(model_name)
 
 def review_code_in_file(file_path):
     try:
