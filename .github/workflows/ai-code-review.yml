@@ -1,4 +1,4 @@
-name: Code Review using CodeLlama
+name: Code Review using Qwen/QwQ-32B
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch full history to ensure HEAD^ and HEAD~1 work
+          fetch-depth: 0  # Fetch full history
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,23 +28,23 @@ jobs:
           pip install transformers sentencepiece torch huggingface_hub
 
       - name: Cache Hugging Face model
-        uses: actions/cache@v3  # Updated to v3
+        uses: actions/cache@v3
         with:
-          path: ~/.cache/huggingface  # Cache directory for Hugging Face models
-          key: ${{ runner.os }}-transformers-${{ hashFiles('**/requirements.txt') }}  # Cache key based on requirements.txt or other unique changes
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-qwen-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-transformers-
+            ${{ runner.os }}-qwen-
 
       - name: Get list of changed files
         id: files
         run: |
           if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+            files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | jq -R -s -c 'split("\n")[:-1]')
           else
-            files=$(git diff --name-only HEAD^ HEAD)
+            files=$(git diff --name-only HEAD^ HEAD | jq -R -s -c 'split("\n")[:-1]')
           fi
           echo "changed_files=$files" >> $GITHUB_ENV
 
-      - name: Run code review with CodeLlama
+      - name: Run code review with Qwen/QwQ-32B
         run: |
-          python review_code.py "${{ env.changed_files }}"
+          python review_code.py '${{ env.changed_files }}'
